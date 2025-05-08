@@ -1,0 +1,19 @@
+# 忽略憑證與敏感資訊
+.env
+
+# 忽略 Git 資料
+.git
+.gitignore
+
+# 忽略 Python 快取檔
+__pycache__/
+*.pyc
+
+# 忽略 IDE 設定檔
+.vscode/
+*.swp
+*.swo
+
+# 忽略 log、暫存檔
+*.log
+tmp/

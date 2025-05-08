@@ -1,5 +1,4 @@
-from dotenv import load_dotenv
-load_dotenv()
+from dbconf import cnxpool
 
 import os,sys,shutil,datetime
 
@@ -10,16 +9,6 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from fastapi.middleware.cors import CORSMiddleware
-
-import mysql.connector.pooling
-import mysql.connector
-config={
-    "user":os.getenv("DB_USER"),
-    "password":os.getenv("DB_PASSWORD"),
-    "host":os.getenv("DB_HOST"),
-    "database":os.getenv("DB_NAME")
-    }
-cnxpool=mysql.connector.pooling.MySQLConnectionPool(pool_name="mypool", pool_size=20, **config)
 
 # initialize FastAPI app 
 app=FastAPI()
