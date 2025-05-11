@@ -5,5 +5,160 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Message Board</title>
   </head>
-  <body></body>
+  <body>
+    <h3>發表一篇圖文</h3>
+    <div class="comment">
+      <div class="comment-text">文字內容</div>
+      <input
+        type="text"
+        class="comment-input"
+        placeholder="選擇一張圖片後送出"
+      />
+    </div>
+    <div class="picture-file">
+      <div class="picture-text">圖片檔案</div>
+      <label for="file-input">
+        <button type="button">Choose File</button>
+      </label>
+      <input
+        class="file-input"
+        type="file"
+        accept="image/*"
+        style="display: none"
+      />
+      <span class="file-name">No file chosen</span>
+    </div>
+    <button class="submit-btn">送出</button>
+    <hr class="separator-under-submit" />
+    <div class="message-list"></div>
+  </body>
 </html>
+<style>
+  .comment {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 5px;
+  }
+  .picture-file {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 5px;
+  }
+</style>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    fetchMessages();
+  });
+
+  let commentInput = document.querySelector(".comment-input");
+  let fileInput = document.querySelector(".file-input");
+  let fileName = document.querySelector(".file-name");
+  let submitBtn = document.querySelector(".submit-btn");
+  let messageList = document.querySelector(".message-list");
+
+  document.querySelector("button").addEventListener("click", () => {
+    fileInput.click();
+  });
+
+  fileInput.addEventListener("change", () => {
+    fileName.textContent =
+      fileInput.files.length > 0 ? fileInput.files[0].name : "No file chosen";
+  });
+
+  // click 送出 button: check if any input fileds are empty, fetch post api, fetch get api to render messages on webpage
+  submitBtn.addEventListener("click", () => {
+    checkInput();
+  });
+
+  async function checkInput() {
+    let comment = commentInput.value.trim();
+    let file = fileInput.files[0];
+    if (!comment || !file) {
+      alert("請輸入留言文字並選擇圖片");
+      return;
+    }
+    fetchPostMessage(comment, file);
+  }
+
+  async function fetchPostMessage(comment, file) {
+    let formData = new FormData();
+    formData.append("comment", comment);
+    formData.append("image", file);
+
+    fetch("/api/messages", {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("成功送出：", data);
+
+        fetchMessages(); // 重新 get 後端留言，確保畫面資料與後端一致
+        // empty input fields
+        commentInput.value = "";
+        fileInput.value = "";
+        fileName.textContent = "No file chosen";
+      })
+      .catch((error) => {
+        console.error("發生錯誤：", error);
+      });
+  }
+
+  function fetchMessages() {
+    let url = "/api/messages";
+    fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .then((responseresult) => {
+        console.log(responseresult);
+        if (responseresult["ok"]) {
+          let messagesArray = responseresult["messages"];
+          let messageList = document.querySelector(".message-list");
+
+          // 清空舊資料（如果有的話）
+          while (messageList.firstChild) {
+            messageList.removeChild(messageList.firstChild);
+          }
+
+          messagesArray.forEach((message) => {
+            let msgDiv = document.createElement("div");
+            msgDiv.classList.add("individual-message");
+
+            let commentDiv = document.createElement("div");
+            commentDiv.classList.add("individual-comment");
+            commentDiv.textContent = message["comment"];
+
+            let pictureDiv = document.createElement("div");
+            pictureDiv.classList.add("individual-picture");
+
+            let img = document.createElement("img");
+            img.src = message["image_url"];
+            img.alt = "留言的圖片";
+            img.width = 100;
+            pictureDiv.appendChild(img);
+
+            let hr = document.createElement("hr");
+            hr.classList.add("separator-under-submit");
+
+            msgDiv.appendChild(commentDiv);
+            msgDiv.appendChild(pictureDiv);
+            msgDiv.appendChild(hr);
+
+            messageList.appendChild(msgDiv);
+          });
+        } else {
+          console.error("取得留言失敗：", responseresult["message"]);
+        }
+      })
+      .catch((error) => {
+        console.error("發生錯誤:", error);
+      });
+  }
+</script>
