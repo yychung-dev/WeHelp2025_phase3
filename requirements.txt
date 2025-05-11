@@ -3,3 +3,5 @@ uvicorn[standard]
 python-dotenv
 mysql-connector-python
 jinja2
+python-multipart
+boto3

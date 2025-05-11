@@ -1,18 +1,21 @@
-# 使用輕量級 Python 映像檔
-FROM python:3.10-slim
+# 使用 amd64 架構的 python 3.11 映像
+FROM python:3.11-slim
 
-# 建立 app 工作目錄
+# 設定工作目錄
 WORKDIR /app
 
-# 複製 requirements.txt 並安裝依賴
+# 複製依賴檔
 COPY requirements.txt .
+
+# 安裝依賴
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 複製整個專案檔案到容器內部
+# 複製整個專案
 COPY . .
 
-# 自動建立 uploads 資料夾（雖然 app 內有設，但這裡確保容器內也有）
-RUN mkdir -p uploads
+# 對外expose container port 8000
+EXPOSE 8000
 
-# 指定啟動指令（uvicorn 啟動 FastAPI 應用）
+# 執行 FastAPI app
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+

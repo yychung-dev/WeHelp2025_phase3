@@ -7,7 +7,10 @@
 
 # 忽略 Python 快取檔
 __pycache__/
-*.pyc
+**/*.pyc
+**/*.pyo
+**/*.pyd
+
 
 # 忽略 IDE 設定檔
 .vscode/
@@ -17,3 +20,8 @@ __pycache__/
 # 忽略 log、暫存檔
 *.log
 tmp/
+
+
+# only for local test，部署時改用 S3
+uploads/ 
+
